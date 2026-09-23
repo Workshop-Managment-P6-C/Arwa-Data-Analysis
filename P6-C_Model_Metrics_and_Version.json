@@ -1,0 +1,106 @@
+{
+  "model_name": "training_risk_model",
+  "version": "training-risk-v1.0-2026-09-22",
+  "baseline_version": "attendance-assessment-rule-v1 (see Reorder_Rules_and_Risk_Thresholds.md)",
+  "dataset": "Generated analysis cohort, 2000 synthetic students, matches the P6-C database schema (attendance, assessment, enrollment). Not the Kaggle Students Performance dataset.",
+  "prediction_point": "After session 5 of 10 (the course midpoint)",
+  "target": "completion_risk = 1 if the student ends the course without a certificate",
+  "positive_rate": 0.507,
+  "split": "75/25 train/test, stratified on completion_risk, random_state=1",
+  "inputs": [
+    "attendance_rate",
+    "max_consecutive_absences",
+    "days_since_last_attendance",
+    "assessed_count",
+    "missed_assessments",
+    "signed_pass",
+    "pending_unsigned",
+    "fail_or_ni_count",
+    "competency_coverage"
+  ],
+  "excluded_protected_or_sensitive": "None collected: the schema has no gender, age, religion, disability, ethnicity, income or health field for students.",
+  "metrics_test_set": [
+    {
+      "model": "Majority class baseline",
+      "accuracy": 0.508,
+      "precision": 0.508,
+      "recall": 1.0,
+      "f1": 0.674,
+      "roc_auc": 0.5
+    },
+    {
+      "model": "Rule baseline (Medium or High, score>=2)",
+      "accuracy": 0.682,
+      "precision": 0.679,
+      "recall": 0.709,
+      "f1": 0.694,
+      "roc_auc": 0.72
+    },
+    {
+      "model": "Rule baseline (High only, score>=4)",
+      "accuracy": 0.61,
+      "precision": 0.715,
+      "recall": 0.386,
+      "f1": 0.501,
+      "roc_auc": 0.72
+    },
+    {
+      "model": "Logistic regression (threshold 0.5)",
+      "accuracy": 0.686,
+      "precision": 0.724,
+      "recall": 0.618,
+      "f1": 0.667,
+      "roc_auc": 0.756
+    }
+  ],
+  "confusion_matrix_rule_medium_plus": {
+    "labels": [
+      "completed",
+      "not completed"
+    ],
+    "matrix": [
+      [
+        161,
+        85
+      ],
+      [
+        74,
+        180
+      ]
+    ]
+  },
+  "confusion_matrix_logistic_regression": {
+    "labels": [
+      "completed",
+      "not completed"
+    ],
+    "matrix": [
+      [
+        186,
+        60
+      ],
+      [
+        97,
+        157
+      ]
+    ]
+  },
+  "top_coefficients_standardised": {
+    "days_since_last_attendance": 0.848,
+    "pending_unsigned": 0.737,
+    "fail_or_ni_count": 0.673,
+    "attendance_rate": -0.456,
+    "max_consecutive_absences": -0.292,
+    "signed_pass": -0.179,
+    "competency_coverage": -0.179,
+    "missed_assessments": 0.073,
+    "assessed_count": -0.073
+  },
+  "known_limitations": [
+    "Trained on synthetic data generated to match this project's schema, not on real trainees.",
+    "The logistic regression does not clearly beat the rule baseline on F1 or accuracy here; only ROC-AUC is higher.",
+    "Positive class is about 51% of the generated cohort, higher than a real cohort is likely to be; recall/precision will differ on real data."
+  ],
+  "fallback": "If this file is missing or fails to load, use the deterministic rule (rule_score >= 2 = Medium risk, >= 4 = High) computed directly from attendance, missed assessments, pending sign-offs and non-pass results. Same inputs, no model required.",
+  "explanation_shown_to_user": "List the rule conditions that fired (e.g. 'Attendance 58% is below 60%', '2 assessments still unsigned'), regardless of whether the rule or the model produced the flag."
+}
